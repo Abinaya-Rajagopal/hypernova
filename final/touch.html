@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Touch Feedback | PROSTHEMIND+</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: Arial, sans-serif;
+            background: #1a1a2e;
+            color: #fff;
+            padding: 20px;
+        }
+        .container { max-width: 1400px; margin: 0 auto; }
+        .header { text-align: center; margin-bottom: 30px; }
+        .header h1 { color: #ffd700; margin-bottom: 10px; }
+        .header p { color: #b0b0b0; }
+        .btn-back {
+            background: #667eea;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .main-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+        .camera-section {
+            background: #16213e;
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid #ffd700;
+        }
+        .canvas-container {
+            position: relative;
+            width: 100%;
+            background: #000;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        #canvas { width: 100%; height: auto; display: block; }
+        .output-section {
+            background: #16213e;
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid #ffd700;
+        }
+        .data-box {
+            background: rgba(255, 215, 0, 0.1);
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border-left: 4px solid #ffd700;
+        }
+        .label { color: #ffd700; font-weight: bold; font-size: 14px; }
+        .value { font-size: 28px; font-weight: bold; margin: 10px 0; color: #00ff00; }
+        .btn {
+            background: #ffd700;
+            color: #1a1a2e;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            margin: 10px 0;
+            transition: all 0.3s ease;
+        }
+        .btn:hover { background: #ffed4e; transform: translateY(-2px); }
+        .btn.stop { background: #ff6347; color: #fff; }
+        .status {
+            text-align: center;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        .status.active { background: rgba(0, 255, 0, 0.2); color: #00ff00; animation: pulse 2s infinite; }
+        .status.idle { background: rgba(255, 165, 0, 0.2); color: #ffa500; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+        .slider-container { margin: 20px 0; }
+        input[type="range"] {
+            width: 100%;
+            height: 10px;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.2);
+            outline: none;
+        }
+        .pain-bar {
+            height: 25px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+        .pain-fill {
+            height: 100%;
+            transition: all 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        @media (max-width: 968px) { .main-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/home" class="btn-back">← Back to Home</a>
+        
+        <div class="header">
+            <h1>✋ Adaptive Grip Control & Touch Feedback</h1>
+            <p>Real-time pressure sensing with intelligent grip adjustment</p>
+        </div>
+        
+        <div class="main-grid">
+            <div class="camera-section">
+                <h3 style="color: #ffd700; margin-bottom: 15px;">📹 Live Touch Analysis</h3>
+                
+                <div class="canvas-container">
+                    <canvas id="canvas"></canvas>
+                </div>
+                
+                <div class="slider-container">
+                    <div class="label">Applied Pressure: <span id="pressureDisplay" style="color: #00ff00; font-size: 20px;">50 N</span></div>
+                    <input type="range" min="0" max="100" value="50" id="pressureSlider">
+                    <div style="display: flex; justify-content: space-between; color: #b0b0b0; font-size: 12px; margin-top: 5px;">
+                        <span>0 N (Light)</span>
+                        <span>50 N (Medium)</span>
+                        <span>100 N (Maximum)</span>
+                    </div>
+                </div>
+                
+                <button class="btn" id="startBtn" onclick="startAnalysis()">🚀 Start Analysis</button>
+                <div class="status idle" id="status">System Ready</div>
+            </div>
+
+            <div class="output-section">
+                <h3 style="color: #ffd700; margin-bottom: 15px;">📊 Touch Analysis</h3>
+                
+                <div class="data-box">
+                    <div class="label">🤚 Touch Type</div>
+                    <div class="value" id="touchType">--</div>
+                </div>
+
+                <div class="data-box">
+                    <div class="label">⚡ Pressure</div>
+                    <div class="value" id="pressure">--</div>
+                </div>
+
+                <div class="data-box">
+                    <div class="label">🔧 Grip Adjust</div>
+                    <div class="value" id="grip">--</div>
+                </div>
+
+                <div class="data-box">
+                    <div class="label">🩸 Pain Level</div>
+                    <div class="value" id="pain">--</div>
+                    <div class="pain-bar">
+                        <div class="pain-fill" id="painBar" style="width: 0%; background: #00ff00;">0%</div>
+                    </div>
+                </div>
+
+                <div class="data-box" style="background: rgba(0, 0, 0, 0.3);">
+                    <div class="label">🕐 Last Update</div>
+                    <div class="value" style="font-size: 16px; color: #ffd700;" id="timestamp">--</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let video, canvas, ctx;
+        let isAnalyzing = false;
+        let analysisInterval;
+        const slider = document.getElementById('pressureSlider');
+
+        // Test backend connection on page load
+        async function testBackendConnection() {
+            try {
+                const response = await fetch('/api/status');
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('✅ Backend connected:', data);
+                    document.getElementById('status').textContent = '✅ Backend Connected - Ready to Start';
+                    document.getElementById('status').className = 'status active';
+                } else {
+                    throw new Error('Backend not responding');
+                }
+            } catch (err) {
+                console.error('❌ Backend connection failed:', err);
+                document.getElementById('status').textContent = '❌ Backend Not Connected - Start Flask Server';
+                document.getElementById('status').className = 'status idle';
+            }
+        }
+
+        // Test connection when page loads
+        window.addEventListener('load', testBackendConnection);
+
+        slider.addEventListener('input', function() {
+            document.getElementById('pressureDisplay').textContent = this.value + ' N';
+        });
+
+        async function startAnalysis() {
+            const btn = document.getElementById('startBtn');
+            
+            if (isAnalyzing) {
+                stopAnalysis();
+                return;
+            }
+
+            try {
+                // Check if getUserMedia is available (requires HTTPS for external IPs)
+                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                    const isSecure = window.location.protocol === 'https:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+                    if (!isSecure) {
+                        throw new Error('Camera access requires HTTPS. Please access via https:// or use localhost. Current URL: ' + window.location.href);
+                    } else {
+                        throw new Error('Camera API not available in this browser. Please use a modern browser with camera support.');
+                    }
+                }
+                
+                video = document.createElement('video');
+                canvas = document.getElementById('canvas');
+                ctx = canvas.getContext('2d');
+                
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { width: 640, height: 480 } 
+                });
+                
+                video.srcObject = stream;
+                video.play();
+                
+                video.onloadedmetadata = () => {
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                    
+                    isAnalyzing = true;
+                    btn.textContent = '⏸ Stop Analysis';
+                    btn.classList.add('stop');
+                    document.getElementById('status').textContent = '🔴 LIVE - Analyzing Touch';
+                    document.getElementById('status').className = 'status active';
+                    
+                    drawFrame();
+                    analysisInterval = setInterval(analyzeTouch, 1500);
+                };
+                
+            } catch (err) {
+                alert('❌ Camera access denied: ' + err.message);
+            }
+        }
+
+        function drawFrame() {
+            if (!isAnalyzing) return;
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            
+            // Draw pressure indicator on video
+            const pressure = parseFloat(slider.value);
+            const barHeight = (pressure / 100) * canvas.height;
+            ctx.fillStyle = pressure < 30 ? '#00ff00' : pressure < 60 ? '#ffd700' : '#ff6347';
+            ctx.fillRect(10, canvas.height - barHeight - 10, 20, barHeight);
+            
+            // Draw pressure text
+            ctx.fillStyle = '#fff';
+            ctx.font = 'bold 24px Arial';
+            ctx.fillText(pressure + ' N', 40, canvas.height - 20);
+            
+            requestAnimationFrame(drawFrame);
+        }
+
+        // Proximity beep system
+        let audioContext = null;
+        let lastBeepTime = 0;
+        
+        function playProximityBeep(frequency) {
+            if (!frequency || frequency === 0) return;
+            
+            // Prevent too frequent beeps (max 1 per second)
+            const now = Date.now();
+            if (now - lastBeepTime < 1000) return;
+            lastBeepTime = now;
+            
+            try {
+                // Initialize audio context if needed
+                if (!audioContext) {
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                
+                // Create oscillator for beep
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.value = frequency;
+                oscillator.type = 'sine';
+                
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.15);
+                
+                console.log(`🔊 Proximity beep: ${frequency}Hz (distance: < 10cm)`);
+            } catch (err) {
+                console.error('Beep error:', err);
+            }
+        }
+
+        async function analyzeTouch() {
+            if (!isAnalyzing) return;
+            
+            try {
+                const pressure = parseFloat(slider.value);
+                const response = await fetch('/api/touch/classify', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ pressure: pressure })
+                });
+                
+                // Check if response is ok
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                // Check for error in response
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                
+                // Update UI with backend data
+                document.getElementById('touchType').textContent = (data.touch_type || 'UNKNOWN').toUpperCase();
+                document.getElementById('pressure').textContent = (data.pressure || 0).toFixed(1) + ' N';
+                document.getElementById('grip').textContent = (data.grip_adjustment || 0).toFixed(1) + ' N';
+                document.getElementById('pain').textContent = (data.pain_level || 0).toFixed(1) + '/10';
+                document.getElementById('timestamp').textContent = data.timestamp || '--';
+                
+                // Update pain bar
+                const painLevel = data.pain_level || 0;
+                const painPercent = (painLevel / 10) * 100;
+                const painBar = document.getElementById('painBar');
+                painBar.style.width = painPercent + '%';
+                painBar.textContent = painPercent.toFixed(0) + '%';
+                
+                if (painLevel < 3) {
+                    painBar.style.background = '#00ff00';
+                    painBar.style.color = '#1a1a2e';
+                } else if (painLevel < 7) {
+                    painBar.style.background = '#ffd700';
+                    painBar.style.color = '#1a1a2e';
+                } else {
+                    painBar.style.background = '#ff0000';
+                    painBar.style.color = '#fff';
+                }
+                
+                // Proximity beep alert (from backend)
+                if (data.proximity_alert && data.beep_frequency > 0) {
+                    playProximityBeep(data.beep_frequency);
+                    
+                    // Visual alert
+                    const statusEl = document.getElementById('status');
+                    statusEl.textContent = `⚠️ PROXIMITY ALERT! Distance: ${data.distance || 0}cm`;
+                    statusEl.style.background = 'rgba(255, 0, 0, 0.3)';
+                    statusEl.style.color = '#ff6347';
+                    
+                    setTimeout(() => {
+                        if (isAnalyzing) {
+                            statusEl.textContent = '🔴 LIVE - Analyzing Touch';
+                            statusEl.className = 'status active';
+                        }
+                    }, 2000);
+                }
+                
+            } catch (err) {
+                console.error('Analysis error:', err);
+                document.getElementById('status').textContent = '❌ Backend Connection Error: ' + err.message;
+                document.getElementById('status').className = 'status idle';
+            }
+        }
+
+        function stopAnalysis() {
+            isAnalyzing = false;
+            clearInterval(analysisInterval);
+            
+            if (video && video.srcObject) {
+                video.srcObject.getTracks().forEach(track => track.stop());
+            }
+            
+            const btn = document.getElementById('startBtn');
+            btn.textContent = '🚀 Start Analysis';
+            btn.classList.remove('stop');
+            document.getElementById('status').textContent = 'System Stopped';
+            document.getElementById('status').className = 'status idle';
+        }
+      </script>
+  </body>
+</html>
+</html>

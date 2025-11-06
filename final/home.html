@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PROSTHEMIND+ | Home</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        /* Navigation Bar */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(26, 26, 46, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 20px 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .nav-logo {
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: #ffd700;
+            letter-spacing: 2px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 40px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: #fff;
+            text-decoration: none;
+            font-size: 1.1rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-links a:hover {
+            color: #ffd700;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #ffd700;
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 12px 30px;
+            border-radius: 30px;
+            color: #fff;
+            text-decoration: none;
+            font-weight: 600;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        /* Hero Section */
+        .hero {
+            margin-top: 100px;
+            padding: 80px 50px;
+            text-align: center;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            font-size: 1.4rem;
+            color: #b0b0b0;
+            max-width: 800px;
+            margin: 0 auto 40px;
+            line-height: 1.8;
+        }
+
+        /* Overview Section */
+        .overview {
+            padding: 80px 50px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .overview h2 {
+            font-size: 2.8rem;
+            margin-bottom: 30px;
+            color: #ffd700;
+            text-align: center;
+        }
+
+        .overview-content {
+            font-size: 1.2rem;
+            line-height: 1.9;
+            color: #d0d0d0;
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        /* Features Grid */
+        .features {
+            padding: 80px 50px;
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .features h2 {
+            font-size: 2.8rem;
+            text-align: center;
+            margin-bottom: 60px;
+            color: #ffd700;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .feature-card {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            padding: 40px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(102, 126, 234, 0.3);
+            border-color: #ffd700;
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+
+        .feature-card h3 {
+            font-size: 1.6rem;
+            margin-bottom: 15px;
+            color: #ffd700;
+        }
+
+        .feature-card p {
+            color: #b0b0b0;
+            line-height: 1.7;
+        }
+
+        /* Video Section */
+        .video-section {
+            padding: 80px 50px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .video-section h2 {
+            font-size: 2.8rem;
+            text-align: center;
+            margin-bottom: 50px;
+            color: #ffd700;
+        }
+
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 40px;
+        }
+
+        .video-container {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 30px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .video-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.3);
+        }
+
+        .video-container h3 {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            color: #ffd700;
+            text-align: center;
+        }
+
+        .video-wrapper {
+            position: relative;
+            padding-bottom: 56.25%;
+            height: 0;
+            overflow: hidden;
+            border-radius: 15px;
+        }
+
+        .video-wrapper iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .video-placeholder {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%);
+            height: 300px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            color: #b0b0b0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .video-placeholder:hover {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.3) 0%, rgba(118, 75, 162, 0.3) 100%);
+        }
+
+        /* Contact Section */
+        .contact {
+            padding: 80px 50px;
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .contact h2 {
+            font-size: 2.8rem;
+            text-align: center;
+            margin-bottom: 50px;
+            color: #ffd700;
+        }
+
+        .contact-content {
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .contact-info {
+            display: flex;
+            justify-content: center;
+            gap: 60px;
+            margin-top: 40px;
+            flex-wrap: wrap;
+        }
+
+        .contact-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .contact-item-icon {
+            font-size: 2.5rem;
+            color: #ffd700;
+        }
+
+        .contact-item p {
+            color: #b0b0b0;
+            font-size: 1.1rem;
+        }
+
+        /* Footer */
+        footer {
+            padding: 30px 50px;
+            text-align: center;
+            background: rgba(0, 0, 0, 0.3);
+            color: #b0b0b0;
+            margin-top: 80px;
+        }
+
+        /* Modal for Features */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            padding: 50px;
+            border-radius: 20px;
+            max-width: 600px;
+            position: relative;
+            border: 2px solid #ffd700;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            font-size: 2rem;
+            color: #fff;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .modal-close:hover {
+            color: #ffd700;
+        }
+
+        .modal-content h3 {
+            font-size: 2rem;
+            color: #ffd700;
+            margin-bottom: 20px;
+        }
+
+        .modal-content p {
+            color: #d0d0d0;
+            line-height: 1.8;
+            font-size: 1.1rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            nav {
+                padding: 15px 20px;
+            }
+
+            .nav-links {
+                gap: 20px;
+                font-size: 0.9rem;
+            }
+
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero p {
+                font-size: 1.1rem;
+            }
+
+            .video-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Smooth Scroll */
+        html {
+            scroll-behavior: smooth;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-logo" onclick="window.location.href='/home'" style="cursor: pointer;">PROSTHEMIND+</div>
+        <ul class="nav-links">
+            <li><a href="#overview">Overview</a></li>
+            <li><a href="#features">Features</a></li>
+            <li><a href="#videos">Videos</a></li>
+            <li><a href="#contact">Contact</a></li>
+        </ul>
+        <a href="#get-started" class="btn-primary">Get Started</a>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <h1>Welcome to PROSTHEMIND+</h1>
+        <p>Beyond prosthetics — it's perception. An advanced prosthetic intelligence system that bridges human perception and artificial control.</p>
+    </section>
+
+    <!-- Overview Section -->
+    <section id="overview" class="overview">
+        <h2>🌍 Overview</h2>
+        <div class="overview-content">
+            <p>PROSTHEMIND+ is an advanced prosthetic intelligence system that bridges the gap between human perception and artificial control. It integrates AI-based object recognition, tactile haptic feedback, and real-time pain simulation to create a lifelike prosthetic experience that reacts and adapts like a natural limb.</p>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="features">
+        <h2>⚙️ Core Features</h2>
+        <div class="features-grid">
+            <a href="/features/context" style="text-decoration: none; color: inherit;">
+                <div class="feature-card">
+                    <div class="feature-icon">🔍</div>
+                    <h3>Object Detection & Material Recognition</h3>
+                    <p>Powered by deep learning, PROSTHEMIND+ identifies nearby objects, recognizes materials (metal, fabric, wood, granite, etc.), and estimates object distance with millimeter-level precision.</p>
+                </div>
+            </a>
+
+            <a href="/features/touch" style="text-decoration: none; color: inherit;">
+                <div class="feature-card">
+                    <div class="feature-icon">✋</div>
+                    <h3>Adaptive Grip Control</h3>
+                    <p>Using dynamic feedback from the sensor network, the prosthetic automatically adjusts its grip pressure to prevent object slippage or excessive force.</p>
+                </div>
+            </a>
+
+            <a href="/features/motion" style="text-decoration: none; color: inherit;">
+                <div class="feature-card">
+                    <div class="feature-icon">🩸</div>
+                    <h3>Pain & Sensory Feedback System</h3>
+                    <p>A virtual "pain" algorithm simulates tactile discomfort in response to excessive pressure, surface texture, or high resistance, allowing safer and more intuitive object handling.</p>
+                </div>
+            </a>
+
+            <a href="/features/rehab" style="text-decoration: none; color: inherit;">
+                <div class="feature-card">
+                    <div class="feature-icon">🪨</div>
+                    <h3>Granite Insight™ Module</h3>
+                    <p>Real-time data visualization of material resistance, grip stability, and confidence levels. Helps users understand how the prosthetic adapts to hard-surface contact.</p>
+                </div>
+            </a>
+
+            <div class="feature-card">
+                <div class="feature-icon">💻</div>
+                <h3>Intelligent User Interface</h3>
+                <p>A real-time dashboard built with OpenCV displays detection visuals, grip history, material feedback, and system diagnostics in one integrated window.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">🚀</div>
+                <h3>Innovation & Impact</h3>
+                <p>PROSTHEMIND+ combines the precision of computer vision with the sensitivity of biological feedback, redefining prosthetic intelligence with sensation-driven control.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Video Section -->
+    <section id="videos" class="video-section">
+        <h2>📹 Watch PROSTHEMIND+ in Action</h2>
+        <div class="video-grid">
+            <div class="video-container">
+                <h3>🎬 Introduction Video</h3>
+                <div class="video-wrapper">
+                    <iframe src="https://www.youtube.com/embed/f5lXA7mQDnI" allowfullscreen></iframe>
+                </div>
+            </div>
+
+            <div class="video-container">
+                <h3>🎥 Demo Video</h3>
+                <div class="video-placeholder" onclick="alert('Demo video coming soon! Upload your demo video and replace this placeholder.')">
+                    <p>📽️ Demo Video Coming Soon<br><small>Click to upload demo video</small></p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="contact">
+        <h2>📞 Get in Touch</h2>
+        <div class="contact-content">
+            <p>Have questions or want to learn more about PROSTHEMIND+? We'd love to hear from you!</p>
+            <div class="contact-info">
+                <div class="contact-item">
+                    <div class="contact-item-icon">📧</div>
+                    <p>contact@prosthemind.com</p>
+                </div>
+                <div class="contact-item">
+                    <div class="contact-item-icon">📱</div>
+                    <p>+1 (555) 123-4567</p>
+                </div>
+                <div class="contact-item">
+                    <div class="contact-item-icon">🌐</div>
+                    <p>www.prosthemind.com</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Get Started Section -->
+    <section id="get-started" class="hero" style="margin-top: 0;">
+        <h1>Ready to Get Started?</h1>
+        <p>Experience the future of prosthetic intelligence. Choose a feature to explore:</p>
+        <div style="display: flex; gap: 20px; justify-content: center; margin-top: 30px; flex-wrap: wrap;">
+            <a href="/features/context" class="btn-primary">Context Detection</a>
+            <a href="/features/touch" class="btn-primary">Touch Feedback</a>
+            <a href="/features/motion" class="btn-primary">Motion Control</a>
+            <a href="/features/rehab" class="btn-primary">Rehabilitation</a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2025 PROSTHEMIND+. All rights reserved. | Beyond prosthetics — it's perception</p>
+    </footer>
+
+    <!-- Feature Modal -->
+    <div id="featureModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeFeatureModal()">&times;</span>
+            <h3 id="modalTitle"></h3>
+            <p id="modalDescription"></p>
+            <div style="margin-top: 30px; text-align: center;">
+                <a id="modalLink" href="#" class="btn-primary">Explore This Feature</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const featureData = {
+            context: {
+                title: "Object Detection & Material Recognition",
+                description: "Our advanced computer vision system uses deep learning models to identify objects in real-time. The system can recognize various materials including metals, fabrics, wood, granite, and more. Distance estimation is accurate to millimeter-level precision, enabling precise manipulation and interaction with the environment.",
+                link: "/features/context"
+            },
+            touch: {
+                title: "Adaptive Grip Control",
+                description: "The adaptive grip system uses a network of pressure sensors and machine learning algorithms to automatically adjust grip force. This prevents both object slippage and excessive force application. The system learns from each interaction, continuously improving its performance and adapting to different object properties.",
+                link: "/features/touch"
+            },
+            motion: {
+                title: "Pain & Sensory Feedback System",
+                description: "Our revolutionary pain simulation algorithm provides realistic tactile feedback. When excessive pressure, rough textures, or high resistance is detected, the system generates proportional feedback signals. This creates a more natural and safer interaction experience, helping users avoid potential damage to both the prosthetic and handled objects.",
+                link: "/features/motion"
+            },
+            rehab: {
+                title: "Granite Insight™ Module",
+                description: "The Granite Insight module provides comprehensive real-time visualization of material resistance, grip stability, and system confidence levels. This advanced analytics panel helps both users and engineers understand exactly how the prosthetic adapts to challenging surfaces like granite, ensuring optimal performance in high-resistance environments.",
+                link: "/features/rehab"
+            }
+        };
+
+        function openFeatureModal(feature) {
+            // Direct navigation - no modal
+            const data = featureData[feature];
+            window.location.href = data.link;
+        }
+        
+        // Also allow direct navigation from modal if clicked
+        document.addEventListener('DOMContentLoaded', function() {
+            const modalLink = document.getElementById('modalLink');
+            if (modalLink) {
+                modalLink.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    window.location.href = this.href;
+                });
+            }
+        });
+
+        function closeFeatureModal() {
+            document.getElementById('featureModal').style.display = 'none';
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('featureModal');
+            if (event.target === modal) {
+                closeFeatureModal();
+            }
+        }
+    </script>
+</body>
+</html>

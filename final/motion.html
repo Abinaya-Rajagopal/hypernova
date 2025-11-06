@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Motion Control | PROSTHEMIND+</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: Arial, sans-serif;
+            background: #1a1a2e;
+            color: #fff;
+            padding: 20px;
+        }
+        .container { max-width: 1400px; margin: 0 auto; }
+        .header { text-align: center; margin-bottom: 30px; }
+        .header h1 { color: #ffd700; margin-bottom: 10px; }
+        .header p { color: #b0b0b0; }
+        .btn-back {
+            background: #667eea;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .main-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+        .camera-section {
+            background: #16213e;
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid #ffd700;
+        }
+        .canvas-container {
+            position: relative;
+            width: 100%;
+            background: #000;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        #canvas { width: 100%; height: auto; display: block; }
+        .output-section {
+            background: #16213e;
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid #ffd700;
+        }
+        .data-box {
+            background: rgba(255, 215, 0, 0.1);
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border-left: 4px solid #ffd700;
+        }
+        .label { color: #ffd700; font-weight: bold; font-size: 14px; }
+        .value { font-size: 28px; font-weight: bold; margin: 10px 0; color: #00ff00; }
+        .btn {
+            background: #ffd700;
+            color: #1a1a2e;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            margin: 10px 0;
+            transition: all 0.3s ease;
+        }
+        .btn:hover { background: #ffed4e; transform: translateY(-2px); }
+        .btn.stop { background: #ff6347; color: #fff; }
+        .status {
+            text-align: center;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        .status.active { background: rgba(0, 255, 0, 0.2); color: #00ff00; animation: pulse 2s infinite; }
+        .status.idle { background: rgba(255, 165, 0, 0.2); color: #ffa500; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+        .state-badge {
+            display: inline-block;
+            padding: 8px 15px;
+            border-radius: 15px;
+            font-size: 14px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        .energy-bar {
+            height: 25px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+        .energy-fill {
+            height: 100%;
+            transition: all 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        @media (max-width: 968px) { .main-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/home" class="btn-back">← Back to Home</a>
+        
+        <div class="header">
+            <h1>🎯 Motion Control & Analysis</h1>
+            <p>Real-time motion pattern recognition and stability monitoring</p>
+        </div>
+        
+        <div class="main-grid">
+            <div class="camera-section">
+                <h3 style="color: #ffd700; margin-bottom: 15px;">📹 Live Motion Tracking</h3>
+                
+                <div class="canvas-container">
+                    <canvas id="canvas"></canvas>
+                </div>
+                
+                <button class="btn" id="startBtn" onclick="startMonitoring()">🚀 Start Monitoring</button>
+                <div class="status idle" id="status">System Ready</div>
+            </div>
+
+            <div class="output-section">
+                <h3 style="color: #ffd700; margin-bottom: 15px;">📊 Motion Analysis</h3>
+                
+                <div class="data-box">
+                    <div class="label">🔄 Motion State</div>
+                    <div class="value" id="state">--</div>
+                    <span class="state-badge" id="stateBadge" style="background: rgba(128,128,128,0.3);">IDLE</span>
+                </div>
+
+                <div class="data-box">
+                    <div class="label">⚡ Velocity</div>
+                    <div class="value" id="velocity">-- mm/s</div>
+                </div>
+
+                <div class="data-box">
+                    <div class="label">📊 Acceleration</div>
+                    <div class="value" id="acceleration">-- mm/s²</div>
+                </div>
+
+                <div class="data-box">
+                    <div class="label">🎯 Stability</div>
+                    <div class="value" id="stability">--%</div>
+                </div>
+
+                <div class="data-box">
+                    <div class="label">⚡ Energy Level</div>
+                    <div class="value" id="energy">--%</div>
+                    <div class="energy-bar">
+                        <div class="energy-fill" id="energyBar" style="width: 0%; background: #00ff00;">0%</div>
+                    </div>
+                </div>
+
+                <div class="data-box" style="background: rgba(0, 0, 0, 0.3);">
+                    <div class="label">🕐 Last Update</div>
+                    <div class="value" style="font-size: 16px; color: #ffd700;" id="timestamp">--</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let video, canvas, ctx;
+        let isMonitoring = false;
+        let monitoringInterval;
+        let prevFrame = null;
+
+        // Test backend connection on page load
+        async function testBackendConnection() {
+            try {
+                const response = await fetch('/api/status');
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('✅ Backend connected:', data);
+                    document.getElementById('status').textContent = '✅ Backend Connected - Ready to Start';
+                    document.getElementById('status').className = 'status active';
+                } else {
+                    throw new Error('Backend not responding');
+                }
+            } catch (err) {
+                console.error('❌ Backend connection failed:', err);
+                document.getElementById('status').textContent = '❌ Backend Not Connected - Start Flask Server';
+                document.getElementById('status').className = 'status idle';
+            }
+        }
+
+        // Test connection when page loads
+        window.addEventListener('load', testBackendConnection);
+
+        const stateColors = {
+            'idle': 'rgba(128, 128, 128, 0.3)',
+            'reaching': 'rgba(255, 215, 0, 0.3)',
+            'grasping': 'rgba(0, 255, 0, 0.3)',
+            'holding': 'rgba(0, 150, 255, 0.3)',
+            'releasing': 'rgba(255, 100, 100, 0.3)'
+        };
+
+        async function startMonitoring() {
+            const btn = document.getElementById('startBtn');
+            
+            if (isMonitoring) {
+                stopMonitoring();
+                return;
+            }
+
+            try {
+                // Check if getUserMedia is available (requires HTTPS for external IPs)
+                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                    const isSecure = window.location.protocol === 'https:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+                    if (!isSecure) {
+                        throw new Error('Camera access requires HTTPS. Please access via https:// or use localhost. Current URL: ' + window.location.href);
+                    } else {
+                        throw new Error('Camera API not available in this browser. Please use a modern browser with camera support.');
+                    }
+                }
+                
+                video = document.createElement('video');
+                canvas = document.getElementById('canvas');
+                ctx = canvas.getContext('2d');
+                
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { width: 640, height: 480 } 
+                });
+                
+                video.srcObject = stream;
+                video.play();
+                
+                video.onloadedmetadata = () => {
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                    
+                    isMonitoring = true;
+                    btn.textContent = '⏸ Stop Monitoring';
+                    btn.classList.add('stop');
+                    document.getElementById('status').textContent = '🔴 LIVE - Monitoring Motion';
+                    document.getElementById('status').className = 'status active';
+                    
+                    drawFrame();
+                    monitoringInterval = setInterval(analyzeMotion, 1500);
+                };
+                
+            } catch (err) {
+                alert('❌ Camera access denied: ' + err.message);
+            }
+        }
+
+        function drawFrame() {
+            if (!isMonitoring) return;
+            
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            
+            // Draw motion indicator grid
+            ctx.strokeStyle = 'rgba(255, 215, 0, 0.3)';
+            ctx.lineWidth = 1;
+            for (let i = 1; i < 4; i++) {
+                ctx.beginPath();
+                ctx.moveTo(canvas.width * i / 4, 0);
+                ctx.lineTo(canvas.width * i / 4, canvas.height);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(0, canvas.height * i / 4);
+                ctx.lineTo(canvas.width, canvas.height * i / 4);
+                ctx.stroke();
+            }
+            
+            // Draw center crosshair
+            ctx.strokeStyle = '#ffd700';
+            ctx.lineWidth = 2;
+            const cx = canvas.width / 2;
+            const cy = canvas.height / 2;
+            ctx.beginPath();
+            ctx.moveTo(cx - 20, cy);
+            ctx.lineTo(cx + 20, cy);
+            ctx.moveTo(cx, cy - 20);
+            ctx.lineTo(cx, cy + 20);
+            ctx.stroke();
+            
+            requestAnimationFrame(drawFrame);
+        }
+
+        async function analyzeMotion() {
+            if (!isMonitoring) return;
+            
+            try {
+                const response = await fetch('/api/motion/analyze', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({})
+                });
+                
+                // Check if response is ok
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                // Check for error in response
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                
+                // Update UI with backend data
+                document.getElementById('state').textContent = (data.state || 'IDLE').toUpperCase();
+                document.getElementById('velocity').textContent = (data.velocity || 0).toFixed(1) + ' mm/s';
+                document.getElementById('acceleration').textContent = (data.acceleration || 0).toFixed(1) + ' mm/s²';
+                document.getElementById('stability').textContent = ((data.stability || 0) * 100).toFixed(0) + '%';
+                document.getElementById('energy').textContent = (data.energy || 0).toFixed(0) + '%';
+                document.getElementById('timestamp').textContent = data.timestamp || '--';
+                
+                const state = (data.state || 'idle').toLowerCase();
+                const badge = document.getElementById('stateBadge');
+                badge.textContent = state.toUpperCase();
+                badge.style.background = stateColors[state] || stateColors['idle'];
+                
+                const energy = data.energy || 0;
+                const energyBar = document.getElementById('energyBar');
+                energyBar.style.width = energy.toFixed(0) + '%';
+                energyBar.textContent = energy.toFixed(0) + '%';
+                
+                if (energy < 30) {
+                    energyBar.style.background = 'linear-gradient(90deg, #ff6347, #ff0000)';
+                    energyBar.style.color = '#fff';
+                } else if (energy < 70) {
+                    energyBar.style.background = 'linear-gradient(90deg, #ffd700, #ffa500)';
+                    energyBar.style.color = '#1a1a2e';
+                } else {
+                    energyBar.style.background = 'linear-gradient(90deg, #00ff00, #7fff00)';
+                    energyBar.style.color = '#1a1a2e';
+                }
+                
+            } catch (err) {
+                console.error('Monitoring error:', err);
+                document.getElementById('status').textContent = '❌ Backend Connection Error: ' + err.message;
+                document.getElementById('status').className = 'status idle';
+            }
+        }
+
+        function stopMonitoring() {
+            isMonitoring = false;
+            clearInterval(monitoringInterval);
+            
+            if (video && video.srcObject) {
+                video.srcObject.getTracks().forEach(track => track.stop());
+            }
+            
+            const btn = document.getElementById('startBtn');
+            btn.textContent = '🚀 Start Monitoring';
+            btn.classList.remove('stop');
+            document.getElementById('status').textContent = 'System Stopped';
+            document.getElementById('status').className = 'status idle';
+        }
+    </script>
+</body>
+</html>

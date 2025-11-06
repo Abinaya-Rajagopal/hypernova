@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rehabilitation | PROSTHEMIND+</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: Arial, sans-serif;
+            background: #1a1a2e;
+            color: #fff;
+            padding: 20px;
+        }
+        .container { max-width: 1400px; margin: 0 auto; }
+        .header { text-align: center; margin-bottom: 30px; }
+        .header h1 { color: #ffd700; margin-bottom: 10px; }
+        .header p { color: #b0b0b0; }
+        .btn-back {
+            background: #667eea;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .main-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .video-section {
+            background: #16213e;
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid #ffd700;
+        }
+        video {
+            width: 100%;
+            border-radius: 10px;
+            background: #000;
+        }
+        .output-section {
+            background: #16213e;
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid #ffd700;
+        }
+        .data-box {
+            background: rgba(255, 215, 0, 0.1);
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border-left: 4px solid #ffd700;
+        }
+        .label { color: #ffd700; font-weight: bold; font-size: 14px; }
+        .value { font-size: 24px; font-weight: bold; margin: 5px 0; }
+        .btn {
+            background: #ffd700;
+            color: #1a1a2e;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            margin: 10px 0;
+        }
+        .btn:hover { background: #ffed4e; }
+        .exercise-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin: 15px 0;
+        }
+        .exercise-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 215, 0, 0.3);
+            color: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        .exercise-btn:hover { background: rgba(255, 215, 0, 0.2); }
+        .exercise-btn.active {
+            background: #ffd700;
+            color: #1a1a2e;
+            border-color: #ffd700;
+        }
+        .status {
+            text-align: center;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        .status.active { background: rgba(0, 255, 0, 0.2); color: #00ff00; }
+        .status.idle { background: rgba(255, 165, 0, 0.2); color: #ffa500; }
+        .progress-circle {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: conic-gradient(#ffd700 0%, transparent 0%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 10px auto;
+            position: relative;
+        }
+        .progress-circle::before {
+            content: '';
+            position: absolute;
+            width: 75px;
+            height: 75px;
+            border-radius: 50%;
+            background: #16213e;
+        }
+        .progress-text {
+            position: relative;
+            z-index: 1;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #ffd700;
+        }
+        .resistance-bar {
+            height: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+        .resistance-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00ff00, #ffd700, #ff6347);
+            transition: width 0.3s ease;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: bold;
+            line-height: 20px;
+            font-size: 12px;
+            color: #1a1a2e;
+        }
+        .granite-badge {
+            display: inline-block;
+            padding: 8px 15px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        .granite-active { background: rgba(255, 215, 0, 0.3); color: #ffd700; }
+        .granite-inactive { background: rgba(128, 128, 128, 0.3); color: #a0a0a0; }
+        @media (max-width: 768px) {
+            .main-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/home" class="btn-back">← Back to Home</a>
+        
+        <div class="header">
+            <h1>🪨 Granite Insight™ Rehabilitation</h1>
+            <p>Real-time rehabilitation tracking with Granite contact detection</p>
+        </div>
+        
+        <div class="main-grid">
+            <!-- Camera Feed -->
+            <div class="video-section">
+                <h3 style="color: #ffd700; margin-bottom: 15px;">📹 Camera Feed</h3>
+                <video id="video" autoplay playsinline></video>
+                <button class="btn" onclick="startCamera()">Start Camera</button>
+                
+                <div class="exercise-grid">
+                    <button class="exercise-btn active" onclick="selectExercise('flex')">💪 Flex</button>
+                    <button class="exercise-btn" onclick="selectExercise('extend')">✋ Extend</button>
+                    <button class="exercise-btn" onclick="selectExercise('rotate')">🔄 Rotate</button>
+                    <button class="exercise-btn" onclick="selectExercise('grip')">✊ Grip</button>
+                </div>
+                
+                <button class="btn" onclick="startExercise()">Start Exercise</button>
+                <div class="status idle" id="status">Camera Off</div>
+            </div>
+
+            <!-- Rehab Output -->
+            <div class="output-section">
+                <h3 style="color: #ffd700; margin-bottom: 15px;">📊 Rehabilitation Results</h3>
+                
+                <div class="data-box">
+                    <div class="label">Exercise Type</div>
+                    <div class="value" id="exercise">--</div>
+                </div>
+
+                <div class="data-box">
+                    <div class="label">Repetitions</div>
+                    <div class="value" id="reps">--</div>
+                </div>
+
+                <div class="data-box">
+                    <div class="label">Completion Progress</div>
+                    <div class="progress-circle" id="progressCircle">
+                        <span class="progress-text" id="progressText">0%</span>
+                    </div>
+                </div>
+
+                <div class="data-box">
+                    <div class="label">Form Accuracy</div>
+                    <div class="value" id="accuracy">--</div>
+                </div>
+
+                <div class="data-box" style="background: rgba(0, 0, 0, 0.3); border: 2px solid rgba(255, 215, 0, 0.3);">
+                    <div class="label">🪨 Granite Insight™</div>
+                    <div style="margin: 10px 0;">
+                        <span style="color: #b0b0b0; font-size: 14px;">Resistance:</span>
+                        <span style="color: #ffd700; font-size: 18px; font-weight: bold;" id="resistance">0 N</span>
+                    </div>
+                    <div class="resistance-bar">
+                        <div class="resistance-fill" id="resistanceBar" style="width: 0%;">0%</div>
+                    </div>
+                    <span class="granite-badge granite-inactive" id="graniteBadge">No Contact</span>
+                </div>
+
+                <div class="data-box">
+                    <div class="label">Last Updated</div>
+                    <div class="value" style="font-size: 16px;" id="timestamp">--</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let video = document.getElementById('video');
+        let isExercising = false;
+        let exerciseInterval;
+        let selectedExercise = 'flex';
+
+        // Test backend connection on page load
+        async function testBackendConnection() {
+            try {
+                const response = await fetch('/api/status');
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('✅ Backend connected:', data);
+                    document.getElementById('status').textContent = '✅ Backend Connected - Ready to Start';
+                    document.getElementById('status').className = 'status active';
+                } else {
+                    throw new Error('Backend not responding');
+                }
+            } catch (err) {
+                console.error('❌ Backend connection failed:', err);
+                document.getElementById('status').textContent = '❌ Backend Not Connected - Start Flask Server';
+                document.getElementById('status').className = 'status idle';
+            }
+        }
+
+        // Test connection when page loads
+        window.addEventListener('load', testBackendConnection);
+
+        function selectExercise(exercise) {
+            selectedExercise = exercise;
+            document.querySelectorAll('.exercise-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+
+        async function startCamera() {
+            try {
+                // Check if getUserMedia is available (requires HTTPS for external IPs)
+                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                    const isSecure = window.location.protocol === 'https:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+                    if (!isSecure) {
+                        throw new Error('Camera access requires HTTPS. Please access via https:// or use localhost. Current URL: ' + window.location.href);
+                    } else {
+                        throw new Error('Camera API not available in this browser. Please use a modern browser with camera support.');
+                    }
+                }
+                
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                video.srcObject = stream;
+                document.getElementById('status').textContent = 'Camera Active';
+                document.getElementById('status').className = 'status active';
+            } catch (err) {
+                alert('Camera access denied: ' + err.message);
+            }
+        }
+
+        async function startExercise() {
+            if (isExercising) {
+                isExercising = false;
+                clearInterval(exerciseInterval);
+                document.getElementById('status').textContent = 'Exercise Stopped';
+                document.getElementById('status').className = 'status idle';
+                return;
+            }
+
+            isExercising = true;
+            document.getElementById('status').textContent = 'Exercise Active';
+            document.getElementById('status').className = 'status active';
+
+            exerciseInterval = setInterval(async () => {
+                try {
+                    const response = await fetch('/api/rehab/analyze', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ exercise: selectedExercise })
+                    });
+                    
+                    // Check if response is ok
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    
+                    const data = await response.json();
+                    
+                    // Check for error in response
+                    if (data.error) {
+                        throw new Error(data.error);
+                    }
+                    
+                    // Update UI with backend data
+                    document.getElementById('exercise').textContent = (data.exercise || 'FLEX').toUpperCase();
+                    document.getElementById('reps').textContent = data.repetitions || 0;
+                    document.getElementById('accuracy').textContent = ((data.form_accuracy || 0) * 100).toFixed(0) + '%';
+                    document.getElementById('timestamp').textContent = data.timestamp || '--';
+                    
+                    // Update progress circle
+                    const completion = data.completion || 0;
+                    document.getElementById('progressText').textContent = completion.toFixed(0) + '%';
+                    document.getElementById('progressCircle').style.background = 
+                        `conic-gradient(#ffd700 ${completion}%, transparent ${completion}%)`;
+                    
+                    // Update resistance
+                    const resistance = data.resistance || 0;
+                    const resistancePercent = (resistance / 80) * 100;
+                    document.getElementById('resistance').textContent = resistance.toFixed(1) + ' N';
+                    document.getElementById('resistanceBar').style.width = resistancePercent + '%';
+                    document.getElementById('resistanceBar').textContent = resistancePercent.toFixed(0) + '%';
+                    
+                    // Update granite status
+                    const badge = document.getElementById('graniteBadge');
+                    if (data.granite_contact) {
+                        badge.className = 'granite-badge granite-active';
+                        badge.textContent = '🪨 Granite Contact';
+                    } else {
+                        badge.className = 'granite-badge granite-inactive';
+                        badge.textContent = 'No Contact';
+                    }
+                } catch (err) {
+                    console.error('Exercise error:', err);
+                    document.getElementById('status').textContent = '❌ Backend Connection Error: ' + err.message;
+                    document.getElementById('status').className = 'status idle';
+                }
+            }, 2000);
+        }
+    </script>
+</body>
+</html>

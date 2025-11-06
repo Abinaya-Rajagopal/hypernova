@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Context Detection | PROSTHEMIND+</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: Arial, sans-serif;
+            background: #1a1a2e;
+            color: #fff;
+            padding: 20px;
+        }
+        .container { max-width: 1400px; margin: 0 auto; }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .header h1 { color: #ffd700; margin-bottom: 10px; }
+        .header p { color: #b0b0b0; }
+        .btn-back {
+            background: #667eea;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .main-grid { 
+            display: grid; 
+            grid-template-columns: 2fr 1fr; 
+            gap: 20px; 
+        }
+        .camera-section {
+            background: #16213e;
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid #ffd700;
+        }
+        .canvas-container {
+            position: relative;
+            width: 100%;
+            background: #000;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        #canvas {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        .detection-overlay {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #ffd700;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        .detection-label {
+            color: #ffd700;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .detection-value {
+            color: #00ff00;
+            font-size: 16px;
+        }
+        .output-section {
+            background: #16213e;
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid #ffd700;
+        }
+        .data-box {
+            background: rgba(255, 215, 0, 0.1);
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border-left: 4px solid #ffd700;
+        }
+        .label { color: #ffd700; font-weight: bold; font-size: 14px; }
+        .value { 
+            font-size: 28px; 
+            font-weight: bold; 
+            margin: 10px 0;
+            color: #00ff00;
+        }
+        .btn {
+            background: #ffd700;
+            color: #1a1a2e;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            margin: 10px 0;
+            transition: all 0.3s ease;
+        }
+        .btn:hover { 
+            background: #ffed4e;
+            transform: translateY(-2px);
+        }
+        .btn.stop { background: #ff6347; color: #fff; }
+        .btn.stop:hover { background: #ff4533; }
+        .status {
+            text-align: center;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .status.active { 
+            background: rgba(0, 255, 0, 0.2); 
+            color: #00ff00;
+            animation: pulse 2s infinite;
+        }
+        .status.idle { background: rgba(255, 165, 0, 0.2); color: #ffa500; }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .stat-mini {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .stat-mini .label { font-size: 11px; }
+        .stat-mini .value { font-size: 18px; }
+        @media (max-width: 968px) {
+            .main-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/home" class="btn-back">← Back to Home</a>
+        
+        <div class="header">
+            <h1>🔍 Object Detection & Material Recognition</h1>
+            <p>Real-time AI-powered context detection with camera feed</p>
+        </div>
+        
+        <div class="main-grid">
+            <!-- Camera Feed with Detection -->
+            <div class="camera-section">
+                <h3 style="color: #ffd700; margin-bottom: 15px;">📹 Live Detection Feed</h3>
+                
+                <div class="canvas-container">
+                    <canvas id="canvas"></canvas>
+                    <div class="detection-overlay" id="overlay">
+                        <div class="detection-label">PROSTHEMIND+ Detection Active</div>
+                        <div class="detection-value">Scanning environment...</div>
+                    </div>
+                </div>
+                
+                <button class="btn" id="startBtn" onclick="startDetection()">🚀 Start Detection</button>
+                <div class="status idle" id="status">System Ready - Click to Start</div>
+                
+                <div class="stats-grid">
+                    <div class="stat-mini">
+                        <div class="label">Frames Processed</div>
+                        <div class="value" id="frames">0</div>
+                    </div>
+                    <div class="stat-mini">
+                        <div class="label">Detection Rate</div>
+                        <div class="value" id="fps">0 fps</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detection Results -->
+            <div class="output-section">
+                <h3 style="color: #ffd700; margin-bottom: 15px;">📊 Detection Results</h3>
+                
+                <div class="data-box">
+                    <div class="label">🎯 Detected Object</div>
+                    <div class="value" id="object">--</div>
+                </div>
+
+                <div class="data-box">
+                    <div class="label">🧱 Material Type</div>
+                    <div class="value" id="material">--</div>
+                </div>
+
+                <div class="data-box">
+                    <div class="label">📏 Distance</div>
+                    <div class="value" id="distance">--</div>
+                </div>
+
+                <div class="data-box">
+                    <div class="label">✅ Confidence</div>
+                    <div class="value" id="confidence">--</div>
+                </div>
+
+                <div class="data-box" style="background: rgba(0, 0, 0, 0.3);">
+                    <div class="label">🕐 Last Update</div>
+                    <div class="value" style="font-size: 16px; color: #ffd700;" id="timestamp">--</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let video, canvas, ctx;
+        let isDetecting = false;
+        let detectionInterval;
+        let frameCount = 0;
+        let lastTime = Date.now();
+
+        // Test backend connection on page load
+        async function testBackendConnection() {
+            try {
+                const response = await fetch('/api/status');
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('✅ Backend connected:', data);
+                    document.getElementById('status').textContent = '✅ Backend Connected - Ready to Start';
+                    document.getElementById('status').className = 'status active';
+                } else {
+                    throw new Error('Backend not responding');
+                }
+            } catch (err) {
+                console.error('❌ Backend connection failed:', err);
+                document.getElementById('status').textContent = '❌ Backend Not Connected - Start Flask Server';
+                document.getElementById('status').className = 'status idle';
+            }
+        }
+
+        // Test connection when page loads
+        window.addEventListener('load', testBackendConnection);
+
+        async function startDetection() {
+            const btn = document.getElementById('startBtn');
+            
+            if (isDetecting) {
+                stopDetection();
+                return;
+            }
+
+            try {
+                // Check if getUserMedia is available (requires HTTPS for external IPs)
+                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                    const isSecure = window.location.protocol === 'https:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+                    if (!isSecure) {
+                        throw new Error('Camera access requires HTTPS. Please access via https:// or use localhost. Current URL: ' + window.location.href);
+                    } else {
+                        throw new Error('Camera API not available in this browser. Please use a modern browser with camera support.');
+                    }
+                }
+                
+                // Initialize video and canvas
+                video = document.createElement('video');
+                canvas = document.getElementById('canvas');
+                ctx = canvas.getContext('2d');
+                
+                // Request camera access
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { width: 640, height: 480 } 
+                });
+                
+                video.srcObject = stream;
+                video.play();
+                
+                // Wait for video to be ready
+                video.onloadedmetadata = () => {
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                    
+                    isDetecting = true;
+                    btn.textContent = '⏸ Stop Detection';
+                    btn.classList.add('stop');
+                    document.getElementById('status').textContent = '🔴 LIVE - Detection Active';
+                    document.getElementById('status').className = 'status active';
+                    
+                    // Start drawing video frames
+                    drawFrame();
+                    
+                    // Start backend detection
+                    detectionInterval = setInterval(detectObject, 2000);
+                };
+                
+            } catch (err) {
+                alert('❌ Camera access denied: ' + err.message);
+                console.error(err);
+            }
+        }
+
+        function drawFrame() {
+            if (!isDetecting) return;
+            
+            // Draw video frame to canvas
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            
+            // Add detection box overlay (simulated)
+            ctx.strokeStyle = '#ffd700';
+            ctx.lineWidth = 3;
+            ctx.strokeRect(
+                canvas.width * 0.2, 
+                canvas.height * 0.2, 
+                canvas.width * 0.6, 
+                canvas.height * 0.6
+            );
+            
+            // Update frame counter
+            frameCount++;
+            const now = Date.now();
+            if (now - lastTime >= 1000) {
+                document.getElementById('fps').textContent = frameCount + ' fps';
+                document.getElementById('frames').textContent = frameCount;
+                frameCount = 0;
+                lastTime = now;
+            }
+            
+            requestAnimationFrame(drawFrame);
+        }
+
+        async function detectObject() {
+            if (!isDetecting) return;
+            
+            try {
+                // Call backend API
+                const response = await fetch('/api/context/detect', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({})
+                });
+                
+                // Check if response is ok
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                // Check for error in response
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                
+                // Update UI with detection results from backend
+                document.getElementById('object').textContent = (data.object || 'UNKNOWN').toUpperCase();
+                document.getElementById('material').textContent = (data.material || 'UNKNOWN').toUpperCase();
+                document.getElementById('distance').textContent = (data.distance || 0) + ' mm';
+                document.getElementById('confidence').textContent = ((data.confidence || 0) * 100).toFixed(1) + '%';
+                document.getElementById('timestamp').textContent = data.timestamp || '--';
+                
+                // Update overlay
+                document.getElementById('overlay').innerHTML = `
+                    <div class="detection-label">✅ DETECTED</div>
+                    <div class="detection-value">${(data.object || 'UNKNOWN').toUpperCase()}</div>
+                    <div style="color: #ffd700; font-size: 12px; margin-top: 5px;">
+                        ${data.material || 'UNKNOWN'} • ${data.distance || 0}mm • ${((data.confidence || 0) * 100).toFixed(0)}%
+                    </div>
+                `;
+                
+            } catch (err) {
+                console.error('Detection error:', err);
+                document.getElementById('status').textContent = '❌ Backend Connection Error';
+                document.getElementById('status').className = 'status idle';
+                document.getElementById('overlay').innerHTML = `
+                    <div class="detection-label">⚠️ ERROR</div>
+                    <div class="detection-value" style="color: #ff6347;">Backend Not Connected</div>
+                    <div style="color: #b0b0b0; font-size: 11px; margin-top: 5px;">
+                        ${err.message}
+                    </div>
+                `;
+            }
+        }
+
+        function stopDetection() {
+            isDetecting = false;
+            clearInterval(detectionInterval);
+            
+            // Stop video stream
+            if (video && video.srcObject) {
+                video.srcObject.getTracks().forEach(track => track.stop());
+            }
+            
+            // Reset UI
+            const btn = document.getElementById('startBtn');
+            btn.textContent = '🚀 Start Detection';
+            btn.classList.remove('stop');
+            document.getElementById('status').textContent = 'System Stopped';
+            document.getElementById('status').className = 'status idle';
+            document.getElementById('overlay').innerHTML = `
+                <div class="detection-label">PROSTHEMIND+ Detection</div>
+                <div class="detection-value">Click Start to Begin</div>
+            `;
+        }
+    </script>
+</body>
+</html>
